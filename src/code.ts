@@ -95,6 +95,48 @@ figma.on('selectionchange', handleSelectionChange);
 let originalFrame: FrameNode | null = null;
 let originalFrameName: string = '';
 let translationIndex: number = 0;
+let nextYPosition: number = 0;
+
+// Find empty Y position below the original frame (avoiding collisions)
+function findEmptyYPosition(frame: FrameNode, gap: number): number {
+    const page = figma.currentPage;
+    const frameX = frame.x;
+    const frameWidth = frame.width;
+    const frameHeight = frame.height;
+
+    // Start below the original frame
+    let candidateY = frame.y + frameHeight + gap;
+
+    // Check all top-level nodes on the page for collisions
+    const siblings = page.children.filter(node => node.id !== frame.id);
+
+    let foundEmpty = false;
+    while (!foundEmpty) {
+        foundEmpty = true;
+        for (const sibling of siblings) {
+            // Check if sibling overlaps horizontally with our frame
+            const siblingRight = sibling.x + sibling.width;
+            const frameRight = frameX + frameWidth;
+            const horizontalOverlap = !(sibling.x >= frameRight || siblingRight <= frameX);
+
+            if (horizontalOverlap) {
+                // Check if sibling is in our candidate Y range
+                const siblingBottom = sibling.y + sibling.height;
+                const candidateBottom = candidateY + frameHeight;
+                const verticalOverlap = !(sibling.y >= candidateBottom || siblingBottom <= candidateY);
+
+                if (verticalOverlap) {
+                    // Collision! Move below this sibling
+                    candidateY = siblingBottom + gap;
+                    foundEmpty = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return candidateY;
+}
 
 // Handle messages from UI
 figma.ui.onmessage = async (msg: any) => {
@@ -104,6 +146,8 @@ figma.ui.onmessage = async (msg: any) => {
         if (selection.length === 1 && selection[0].type === 'FRAME') {
             originalFrame = selection[0] as FrameNode;
             originalFrameName = originalFrame.name;
+            // Find initial empty position below original frame
+            nextYPosition = findEmptyYPosition(originalFrame, 100);
         } else {
             originalFrame = null;
         }
@@ -116,10 +160,13 @@ figma.ui.onmessage = async (msg: any) => {
 
         try {
             if (createCopies && originalFrame) {
-                // Clone and apply - vertical layout (below original)
+                // Clone and apply - place at next empty Y position
                 const clone = originalFrame.clone();
-                clone.y = originalFrame.y + (originalFrame.height + 100) * (translationIndex + 1);
+                clone.y = nextYPosition;
                 clone.name = `${originalFrameName}_${translation.languageCode}`;
+
+                // Update nextYPosition for the next frame
+                nextYPosition = clone.y + clone.height + 100;
 
                 // Map original IDs to clone IDs
                 const idMap = buildIdMapping(originalFrame, clone, translation.texts);
@@ -217,13 +264,18 @@ async function createLanguageCopies(data: TranslatedData) {
     const originalName = originalFrame.name;
 
     // Create copies for EACH language (original stays untouched)
+    let legacyNextY = findEmptyYPosition(originalFrame, 100);
+
     for (let i = 0; i < data.translations.length; i++) {
         const translation = data.translations[i];
 
-        // Clone the original frame for each language - VERTICAL layout (below original)
+        // Clone the original frame for each language - place at next empty position
         const clone = originalFrame.clone();
-        clone.y = originalFrame.y + (originalFrame.height + 100) * (i + 1);
+        clone.y = legacyNextY;
         clone.name = `${originalName}_${translation.languageCode}`;
+
+        // Update position for next frame
+        legacyNextY = clone.y + clone.height + 100;
 
         // Map original IDs to clone IDs
         const idMap = buildIdMapping(originalFrame, clone, translation.texts);
