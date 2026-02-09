@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Figma Translator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌍 Translator</h1>
+      <p class="subtitle">Context-aware localization powered by AI</p>
+    </header>
+
+    <section id="setup-section" class="section">
+      <label for="api-key">OpenAI API Key</label>
+      <div class="input-group">
+        <input type="password" id="api-key" placeholder="sk-..." />
+        <button id="toggle-key" class="btn-icon" title="Show/Hide">👁</button>
+      </div>
+    </section>
+
+    <section id="context-section" class="section">
+      <label for="context">Translation Context</label>
+      <textarea id="context" placeholder="e.g., App store listing for a fashion rating app. Keep text concise and engaging."></textarea>
+      <p class="hint">Provide context for better localization</p>
+    </section>
+
+    <section id="languages-section" class="section">
+      <label>Target Languages</label>
+      <div id="language-grid" class="language-grid">
+        <!-- Languages populated by JS -->
+      </div>
+    </section>
+
+    <section id="preview-section" class="section hidden">
+      <label>Extracted Text <span id="text-count" class="badge">0</span></label>
+      <div id="text-preview" class="text-preview">
+        <!-- Text items populated by JS -->
+      </div>
+    </section>
+
+    <section id="options-section" class="section">
+      <label class="checkbox-label">
+        <input type="checkbox" id="create-copies" checked />
+        <span>Create separate frames for each language</span>
+      </label>
+    </section>
+
+    <section id="status-section" class="section hidden">
+      <div id="status" class="status">
+        <span class="spinner"></span>
+        <span id="status-text">Translating...</span>
+      </div>
+      <div id="progress-bar" class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </section>
+
+    <footer>
+      <button id="translate-btn" class="btn-primary" disabled>Translate</button>
+      <button id="cancel-btn" class="btn-secondary">Cancel</button>
+    </footer>
+  </div>
+
+  <script src="ui.js"></script>
+</body>
+</html>

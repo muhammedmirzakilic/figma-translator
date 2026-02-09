@@ -1,0 +1,14 @@
+{
+  "name": "figma-translator",
+  "version": "1.0.0",
+  "description": "Figma plugin for multi-language translation using OpenAI",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.94.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  }
+}
