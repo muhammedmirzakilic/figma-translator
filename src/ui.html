@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Figma Translator</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -20,9 +22,19 @@
       </div>
     </section>
 
+    <section id="model-section" class="section">
+      <label for="model-select">Model</label>
+      <select id="model-select" class="select-input">
+        <option value="gpt-4.1-nano">GPT-4.1 Nano (Fastest, Cheapest)</option>
+        <option value="gpt-4o-mini">GPT-4o Mini (Balanced)</option>
+        <option value="gpt-5-mini">GPT-5 Mini (Newest)</option>
+      </select>
+    </section>
+
     <section id="context-section" class="section">
       <label for="context">Translation Context</label>
-      <textarea id="context" placeholder="e.g., App store listing for a fashion rating app. Keep text concise and engaging."></textarea>
+      <textarea id="context"
+        placeholder="e.g., App store listing for a fashion rating app. Keep text concise and engaging."></textarea>
       <p class="hint">Provide context for better localization</p>
     </section>
 
@@ -65,4 +77,5 @@
 
   <script src="ui.js"></script>
 </body>
+
 </html>

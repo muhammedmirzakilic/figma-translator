@@ -60,7 +60,6 @@ npm run watch
 
 You'll need an OpenAI API key to use this plugin. Get one at [platform.openai.com](https://platform.openai.com/api-keys).
 
-The plugin uses `gpt-4o-mini` for cost-effective, high-quality translations.
 
 ### Translation Context
 

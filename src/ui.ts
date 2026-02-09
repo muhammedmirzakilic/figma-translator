@@ -52,6 +52,7 @@ let cancelBtn: HTMLButtonElement;
 let statusSection: HTMLElement;
 let statusText: HTMLSpanElement;
 let progressFill: HTMLDivElement;
+let modelSelect: HTMLSelectElement;
 
 // Initialize DOM elements
 function initDOMElements() {
@@ -68,6 +69,7 @@ function initDOMElements() {
     statusSection = document.getElementById('status-section') as HTMLElement;
     statusText = document.getElementById('status-text') as HTMLSpanElement;
     progressFill = document.getElementById('progress-fill') as HTMLDivElement;
+    modelSelect = document.getElementById('model-select') as HTMLSelectElement;
 }
 
 // Initialize
@@ -242,6 +244,32 @@ async function handleTranslate() {
     }
 }
 
+// Get model-specific API configuration
+function getModelConfig(prompt: string) {
+    const selectedModel = modelSelect.value;
+    const messages = [
+        { role: 'system', content: 'You are a professional translator and localization expert. Always respond with valid JSON only.' },
+        { role: 'user', content: prompt }
+    ];
+
+    // GPT-5-mini requires different parameters
+    if (selectedModel === 'gpt-5-mini') {
+        return {
+            model: selectedModel,
+            messages,
+            max_completion_tokens: 30000
+        };
+    }
+
+    // GPT-4o-mini and GPT-4.1-nano use standard parameters
+    return {
+        model: selectedModel,
+        messages,
+        temperature: 0.3,
+        max_tokens: 4000
+    };
+}
+
 async function translateWithOpenAI(
     texts: TextItem[],
     targetLanguage: string,
@@ -279,15 +307,7 @@ Respond with ONLY a JSON array in this exact format (no markdown, no explanation
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-                { role: 'system', content: 'You are a professional translator and localization expert. Always respond with valid JSON only.' },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.3,
-            max_tokens: 4000
-        })
+        body: JSON.stringify(getModelConfig(prompt))
     });
 
     if (!response.ok) {
@@ -346,6 +366,7 @@ window.onmessage = (event) => {
         status.classList.remove('error');
         statusText.textContent = '✓ Translations applied successfully!';
         progressFill.style.width = '100%';
+        translateBtn.disabled = false; // Re-enable for another translation
 
         // Hide spinner
         const spinner = status.querySelector('.spinner') as HTMLElement;
